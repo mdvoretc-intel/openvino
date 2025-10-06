@@ -377,13 +377,24 @@ void Graph::convert_stateless_LLM_to_stateful_LLM(std::shared_ptr<ov::Model>& mo
     if (model_has_input_output_name(model, "beam_idx")) {
         throw std::runtime_error("Model already has fused cache");
     }
-    std::string main_input_name = model_has_input_output_name(model, "input_ids") ? "input_ids" : "input_hidden_states";
+    std::string main_input_name = "";
     found_input_id =
-        model_has_input_output_name(model, "input_ids") || model_has_input_output_name(model, "input_hidden_states");
+        model_has_input_output_name(model, "input_ids") || model_has_input_output_name(model, "input_hidden_states") || model_has_input_output_name(model, "/model/embed_tokens/Gather_output_0") ;
     if (model_has_input_output_name(model, "input_ids"))
+    {
         size_t input_id_index = index_of_model_input_output(model, "input_ids");
+        main_input_name = "input_ids";
+    }
     else if (model_has_input_output_name(model, "input_hidden_states"))
+    {
         size_t input_id_index = index_of_model_input_output(model, "input_hidden_states");
+        main_input_name = "input_hidden_states";
+    }
+    else if (model_has_input_output_name(model, "/model/embed_tokens/Gather_output_0"))
+    {
+        size_t input_id_index = index_of_model_input_output(model, "/model/embed_tokens/Gather_output_0");
+        main_input_name = "/model/embed_tokens/Gather_output_0";
+    }
     PartialShape input_batch_shape = model->input(main_input_name).get_partial_shape();
     Dimension batch_dim = input_batch_shape[0];
     beam_idx = std::make_shared<ov::op::v0::Parameter>(element::i32, PartialShape{batch_dim});
@@ -395,8 +406,8 @@ void Graph::convert_stateless_LLM_to_stateful_LLM(std::shared_ptr<ov::Model>& mo
     for (auto i = 0; i < params.size(); i++) {
         //iterate over all inputs and make a list of all KV ops
         auto param_name = params.at(i)->output(0).get_any_name();
-        size_t found_past_keys = param_name.find("past_keys");
-        size_t found_past_values = param_name.find("past_values");
+        size_t found_past_keys = param_name.find("past_key");
+        size_t found_past_values = param_name.find("past_value");
         size_t found_past = param_name.find("past_key_values");
         size_t found_past_key_phi3 = param_name.find(".key");
         size_t found_past_value_phi3 = param_name.find(".value");
@@ -442,8 +453,8 @@ void Graph::convert_stateless_LLM_to_stateful_LLM(std::shared_ptr<ov::Model>& mo
     }
      for(auto i = 0; i < results.size(); i++){
         auto res_name = results.at(i)->output(0).get_any_name();
-        size_t found_present_keys = res_name.find("present_keys");
-        size_t found_present_values = res_name.find("present_values");
+        size_t found_present_keys = res_name.find("present_key");
+        size_t found_present_values = res_name.find("present_value");
         size_t found_present = res_name.find("present");
         size_t found_key = res_name.find(".key");
         size_t found_value = res_name.find(".value");
