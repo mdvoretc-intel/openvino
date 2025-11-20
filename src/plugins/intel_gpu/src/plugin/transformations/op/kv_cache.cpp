@@ -49,6 +49,33 @@ KVCache::KVCache(const Output<Node>& past,
     validate_and_infer_types();
 }
 
+KVCache::KVCache(const Output<Node>& past,
+                 const Output<Node>& new_token_data,
+                 const Output<Node>& beam_idx,
+                 const Output<Node>& src_idx,
+                 const Output<Node>& dst_idx,
+                 const std::shared_ptr<ov::op::util::Variable>& past_variable,
+                 int64_t concat_axis,
+                 int64_t gather_axis,
+                 const ov::element::Type output_type)
+    : KVCache({past, new_token_data, beam_idx, src_idx, dst_idx}, past_variable, true, concat_axis, gather_axis, output_type) {
+    if (m_indirect)
+        set_output_size(2);
+    validate_and_infer_types();
+}
+
+KVCache::KVCache(const Output<Node>& past,
+                 const Output<Node>& new_token_data,
+                 const Output<Node>& src_idx,
+                 const Output<Node>& dst_idx,
+                 const std::shared_ptr<ov::op::util::Variable>& past_variable,
+                 int64_t concat_axis,
+                 const ov::element::Type output_type)
+    : KVCache({past, new_token_data, src_idx, dst_idx}, past_variable, false, concat_axis, 0, output_type) {
+    m_variable = past_variable;
+    validate_and_infer_types();
+}
+
 bool KVCache::visit_attributes(ov::AttributeVisitor& visitor) {
     visitor.on_attribute("concat_axis", m_concat_axis);
     visitor.on_attribute("gather_axis", m_gather_axis);
