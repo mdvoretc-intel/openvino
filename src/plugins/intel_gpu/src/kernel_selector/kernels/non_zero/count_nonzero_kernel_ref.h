@@ -5,16 +5,9 @@
 #pragma once
 
 #include "kernel_base_opencl.h"
+#include "count_nonzero_params.h"
 
 namespace kernel_selector {
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// count_nonzero_params
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-struct count_nonzero_params : public base_params {
-    count_nonzero_params() : base_params(KernelType::COUNT_NONZERO) {}
-    int32_t ov_input_rank = -1;
-};
-
 class CountNonzeroKernelRef : public KernelBaseOpenCL {
 public:
     CountNonzeroKernelRef() : KernelBaseOpenCL("count_nonzero_ref") {}

@@ -3,11 +3,15 @@
 //
 
 #include "count_nonzero_kernel_selector.h"
+#include "count_nonzero_kernel_group.h"
 #include "count_nonzero_kernel_ref.h"
 
 namespace kernel_selector {
 
-count_nonzero_kernel_selector::count_nonzero_kernel_selector() { Attach<CountNonzeroKernelRef>(); }
+count_nonzero_kernel_selector::count_nonzero_kernel_selector() {
+    Attach<CountNonzeroKernelGroup>();
+    Attach<CountNonzeroKernelRef>();
+}
 
 KernelsData count_nonzero_kernel_selector::GetBestKernels(const Params& params) const {
     return GetNaiveBestKernel(params, KernelType::COUNT_NONZERO);

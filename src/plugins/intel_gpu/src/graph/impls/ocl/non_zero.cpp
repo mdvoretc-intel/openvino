@@ -3,11 +3,11 @@
 //
 
 #include "primitive_base.hpp"
-
+#include "kernel_base.h"
 #include "non_zero_inst.h"
-#include "non_zero/count_nonzero_kernel_ref.h"
+#include "non_zero/count_nonzero_params.h"
 #include "non_zero/count_nonzero_kernel_selector.h"
-#include "non_zero/gather_nonzero_kernel_ref.h"
+#include "non_zero/gather_nonzero_params.h"
 #include "non_zero/gather_nonzero_kernel_selector.h"
 
 namespace cldnn {
