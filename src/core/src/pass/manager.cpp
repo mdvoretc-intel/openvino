@@ -324,17 +324,17 @@ public:
         }
         if (m_serialize.is_enabled()) {
             const auto& _serialize = [&]() {
-                auto file_name = gen_file_name(model->get_name(), pass_name, serialize_index++);
+                auto file_name = gen_file_name(model->get_name(), target_pass_name, serialize_index++);
                 ov::pass::Serialize serialize(file_name.concat(".xml"), {});
                 serialize.run_on_model(model);
             };
 
             if (m_serialize.is_bool()) {
-                _serialize(false);
+                _serialize();
             } else {
                 const auto& filter_tokens = ov::util::split_by_delimiter(m_serialize.get_str(), ',');
                 for (const auto& token : filter_tokens) {
-                    if (pass_name.find(token) != std::string::npos) {
+                    if (target_pass_name.find(token) != std::string::npos) {
                         _serialize();
                         return;
                     }
